@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hung0221 | GitHub 儲存庫展示牆</title>
+    <meta name="description" content="hung0221 的 GitHub 個人介紹與儲存庫展示網頁。採用現代深色玻璃擬態設計，動態呈現所有公開儲存庫與語言統計。">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-card: rgba(22, 27, 34, 0.45);
+            --bg-card-hover: rgba(30, 41, 59, 0.7);
+            --primary: #9d4edd;
+            --primary-glow: rgba(157, 78, 221, 0.3);
+            --secondary: #00f2fe;
+            --secondary-glow: rgba(0, 242, 254, 0.25);
+            --accent: #ff007f;
+            --text-main: #f0f6fc;
+            --text-muted: #8b949e;
+            --border-color: rgba(240, 246, 252, 0.1);
+            --border-glow: rgba(157, 78, 221, 0.4);
+            --success: #3fb950;
+            --error: #f85149;
+            --transition-speed: 0.3s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(157, 78, 221, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 242, 254, 0.08) 0%, transparent 40%);
+            background-attachment: fixed;
+        }
+
+        /* 頂部發光炫光背景 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 400px;
+            background: radial-gradient(circle, rgba(157, 78, 221, 0.15) 0%, rgba(0, 242, 254, 0.05) 50%, transparent 100%);
+            z-index: -1;
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Header / Hero Section */
+        header {
+            margin-bottom: 40px;
+            animation: fadeIn 1s ease-out;
+        }
+
+        .profile-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+        }
+
+        .profile-card:hover {
+            border-color: var(--border-glow);
+            box-shadow: 0 8px 32px 0 var(--primary-glow);
+        }
+
+        .profile-avatar-container {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .profile-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            border: 4px solid transparent;
+            background-image: linear-gradient(var(--bg-dark), var(--bg-dark)), linear-gradient(135deg, var(--primary), var(--secondary));
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            box-shadow: 0 0 20px rgba(157, 78, 221, 0.4);
+            object-fit: cover;
+            transition: transform var(--transition-speed);
+        }
+
+        .profile-card:hover .profile-avatar {
+            transform: scale(1.05) rotate(2deg);
+        }
+
+        .profile-info {
+            flex-grow: 1;
+        }
+
+        .profile-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, #fff 30%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-username {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .profile-bio {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: rgba(240, 246, 252, 0.85);
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 6px 14px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-item i {
+            color: var(--secondary);
+        }
+
+        .profile-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #7b2cbf 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(157, 78, 221, 0.6);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 40px;
+            animation: fadeIn 1.2s ease-out;
+        }
+
+        @media (max-width: 900px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            .profile-card {
+                flex-direction: column;
+                text-align: center;
+                padding: 30px 20px;
+            }
+            .profile-name {
+                justify-content: center;
+                flex-direction: column;
+                gap: 5px;
+            }
+            .profile-stats {
+                justify-content: center;
+            }
+            .profile-links {
+                justify-content: center;
+            }
+        }
+
+        .dashboard-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+        }
+
+        .dashboard-card h3 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-main);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        .dashboard-card h3 i {
+            color: var(--primary);
+        }
+
+        /* Chart container */
+        .chart-container {
+            position: relative;
+            height: 220px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Quick Stats */
+        .quick-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            height: 100%;
+        }
+
+        .quick-stat-box {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: transform var(--transition-speed), background-color var(--transition-speed);
+        }
+
+        .quick-stat-box:hover {
+            transform: scale(1.03);
+            background: rgba(255, 255, 255, 0.04);
+            border-color: var(--secondary-glow);
+        }
+
+        .quick-stat-val {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .quick-stat-lbl {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Repos section title & filter controls */
+        .section-header {
+            margin-bottom: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            animation: fadeIn 1.4s ease-out;
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .section-title span {
+            font-size: 0.95rem;
+            background: var(--primary-glow);
+            border: 1px solid var(--primary);
+            color: #d8b4fe;
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+
+        .controls-wrapper {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 700px;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .controls-wrapper {
+                justify-content: flex-start;
+                max-width: 100%;
+            }
+        }
+
+        .search-box {
+            position: relative;
+            flex-grow: 1;
+            min-width: 200px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 42px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all var(--transition-speed);
+        }
+
+        .search-input:focus {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(157, 78, 221, 0.3);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .select-filter {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            cursor: pointer;
+            transition: all var(--transition-speed);
+            min-width: 150px;
+        }
+
+        .select-filter:focus {
+            border-color: var(--primary);
+            background: rgba(30, 41, 59, 0.9);
+        }
+
+        .select-filter option {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+        }
+
+        /* Repos Grid */
+        .repos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 25px;
+            margin-bottom: 50px;
+            animation: fadeIn 1.6s ease-out;
+        }
+
+        @media (max-width: 480px) {
+            .repos-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .repo-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+            border-radius: 18px;
+            padding: 26px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 240px;
+            position: relative;
+            transition: transform var(--transition-speed) cubic-bezier(0.25, 0.8, 0.25, 1), 
+                        border-color var(--transition-speed), 
+                        box-shadow var(--transition-speed);
+            overflow: hidden;
+        }
+
+        .repo-card:hover {
+            transform: translateY(-6px);
+            border-color: var(--border-glow);
+            box-shadow: 0 10px 25px rgba(157, 78, 221, 0.25);
+            background: var(--bg-card-hover);
+        }
+
+        /* 裝飾炫光 */
+        .repo-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 60%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        .repo-card:hover::after {
+            opacity: 1;
+        }
+
+        .repo-top {
+            margin-bottom: 15px;
+        }
+
+        .repo-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            word-break: break-all;
+        }
+
+        .repo-title a {
+            transition: color var(--transition-speed);
+        }
+
+        .repo-card:hover .repo-title a {
+            color: var(--secondary);
+        }
+
+        .repo-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            height: 60px;
+            margin-bottom: 15px;
+        }
+
+        .repo-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 14px;
+        }
+
+        .repo-lang-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .repo-lang-color {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .repo-stats-box {
+            display: flex;
+            gap: 12px;
+            color: var(--text-muted);
+        }
+
+        .repo-stat-icon {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .repo-stat-icon i {
+            font-size: 0.85rem;
+        }
+
+        .repo-card:hover .repo-stat-icon i.fa-star {
+            color: #f1c40f;
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+
+        .repo-card:hover .repo-stat-icon i.fa-code-branch {
+            color: var(--secondary);
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+
+        /* Loading / Error States */
+        .state-container {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(157, 78, 221, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            border-right-color: var(--secondary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 60px;
+            border-top: 1px solid var(--border-color);
+            padding: 40px 20px 20px 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+
+        /* Deployment Assistant Button (Floater) */
+        .deploy-floater {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+        }
+
+        .btn-deploy-toggle {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+            color: #fff;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 4px 20px rgba(255, 0, 127, 0.4);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-deploy-toggle:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: 0 6px 25px rgba(255, 0, 127, 0.6);
+        }
+
+        /* Deployment Assistant Modal */
+        .deploy-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 14, 23, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .deploy-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .deploy-content {
+            background: #161b22;
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            width: 90%;
+            max-width: 600px;
+            padding: 35px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+            transform: translateY(30px);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .deploy-modal.active .deploy-content {
+            transform: translateY(0);
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color var(--transition-speed);
+        }
+
+        .close-modal:hover {
+            color: var(--text-main);
+        }
+
+        .deploy-header h2 {
+            font-family: 'Outfit', sans-serif;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--primary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .deploy-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .form-group label span {
+            color: var(--accent);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all var(--transition-speed);
+        }
+
+        .form-input:focus {
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 10px rgba(255, 0, 127, 0.2);
+        }
+
+        .token-tip {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 6px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .token-tip a {
+            color: var(--secondary);
+            text-decoration: underline;
+        }
+
+        /* Console Output Styles */
+        .console-box {
+            background: #0d1117;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: #c9d1d9;
+            height: 180px;
+            overflow-y: auto;
+            margin-bottom: 25px;
+            display: none;
+            text-align: left;
+            white-space: pre-wrap;
+            border-left: 4px solid var(--primary);
+        }
+
+        .console-line-success { color: var(--success); }
+        .console-line-error { color: var(--error); }
+        .console-line-info { color: var(--secondary); }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(157, 78, 221, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Header -->
+        <header>
+            <div class="profile-card" id="profile-card">
+                <div class="profile-avatar-container">
+                    <img src="" alt="Avatar" class="profile-avatar" id="user-avatar">
+                </div>
+                <div class="profile-info">
+                    <h1 class="profile-name">
+                        <span id="user-name">載入中...</span>
+                        <span class="profile-username" id="user-login">@...</span>
+                    </h1>
+                    <p class="profile-bio" id="user-bio">正在讀取 GitHub 個人資訊檔案...</p>
+                    <div class="profile-stats">
+                        <div class="stat-item">
+                            <i class="fa-solid fa-users"></i>
+                            <span id="user-followers">0</span> followers
+                        </div>
+                        <div class="stat-item">
+                            <i class="fa-solid fa-user-plus"></i>
+                            <span id="user-following">0</span> following
+                        </div>
+                        <div class="stat-item">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                            <span id="user-repos-count">0</span> public repos
+                        </div>
+                    </div>
+                    <div class="profile-links">
+                        <a href="https://github.com/hung0221" target="_blank" class="btn btn-primary" id="github-profile-link">
+                            <i class="fa-brands fa-github"></i> 前往我的 GitHub
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Dashboard / Charts -->
+        <section class="dashboard-grid">
+            <!-- Language Chart -->
+            <div class="dashboard-card">
+                <h3><i class="fa-solid fa-chart-pie"></i> 語言分佈統計</h3>
+                <div class="chart-container">
+                    <canvas id="languageChart"></canvas>
+                </div>
+            </div>
+            
+            <!-- Quick Stats -->
+            <div class="dashboard-card">
+                <h3><i class="fa-solid fa-chart-simple"></i> 儲存庫數據摘要</h3>
+                <div class="quick-stats-grid">
+                    <div class="quick-stat-box">
+                        <div class="quick-stat-val" id="total-stars">0</div>
+                        <div class="quick-stat-lbl">獲得星星數</div>
+                    </div>
+                    <div class="quick-stat-box">
+                        <div class="quick-stat-val" id="total-forks">0</div>
+                        <div class="quick-stat-lbl">分支次數</div>
+                    </div>
+                    <div class="quick-stat-box">
+                        <div class="quick-stat-val" id="primary-language-stat">-</div>
+                        <div class="quick-stat-lbl">最常用語言</div>
+                    </div>
+                    <div class="quick-stat-box">
+                        <div class="quick-stat-val" id="latest-updated-repo">-</div>
+                        <div class="quick-stat-lbl">最近更新儲存庫</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Repository Filter & Title -->
+        <section class="section-header">
+            <h2 class="section-title">
+                我的儲存庫牆 <span id="visible-repos-count">0</span>
+            </h2>
+            <div class="controls-wrapper">
+                <!-- Search Box -->
+                <div class="search-box">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="text" class="search-input" id="search-input" placeholder="搜尋儲存庫名稱或描述...">
+                </div>
+                <!-- Language Filter -->
+                <select class="select-filter" id="lang-filter">
+                    <option value="all">所有語言</option>
+                </select>
+                <!-- Sort Order -->
+                <select class="select-filter" id="sort-select">
+                    <option value="updated">最近更新</option>
+                    <option value="stars">最多星星</option>
+                    <option value="name">名稱 A-Z</option>
+                </select>
+            </div>
+        </section>
+
+        <!-- Repos Grid -->
+        <main class="repos-grid" id="repos-container">
+            <div class="state-container" id="loading-state">
+                <div class="spinner"></div>
+                <p>正在動態獲取 GitHub 儲存庫列表中...</p>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer>
+            <p>© <span id="current-year"></span> hung0221. Powered by Antigravity Design System.</p>
+            <p style="font-size: 0.8rem; opacity: 0.6;">此頁面透過前端動態串接 GitHub REST API，提供即時的數據呈現。</p>
+        </footer>
+
+    </div>
+
+    <!-- Floating Deploy Button -->
+    <div class="deploy-floater">
+        <button class="btn-deploy-toggle" id="btn-deploy-toggle" title="部署到 GitHub Pages">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+        </button>
+    </div>
+
+    <!-- Deployment Helper Modal -->
+    <div class="deploy-modal" id="deploy-modal">
+        <div class="deploy-content">
+            <button class="close-modal" id="close-modal">&times;</button>
+            <div class="deploy-header">
+                <h2><i class="fa-solid fa-cloud-arrow-up"></i> GitHub Pages 部署助手</h2>
+                <p>由於本地環境缺少 Git 工具，您可以直接使用本助手將此網頁部署到您 GitHub 帳號下的 <strong>AgentCoding</strong> 儲存庫，並自動啟用 GitHub Pages 讓所有人瀏覽。</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="gh-token">GitHub Personal Access Token <span>*</span></label>
+                <input type="password" class="form-input" id="gh-token" placeholder="ghp_xxxxxxxxxxxx">
+                <div class="token-tip">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>需要 <code>repo</code> 權限。<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank">前往產生 Token</a></span>
+                </div>
+            </div>
+
+            <!-- Console Log Panel -->
+            <div class="console-box" id="console-box"></div>
+
+            <button class="btn btn-primary btn-full" id="btn-start-deploy">
+                <i class="fa-solid fa-circle-play"></i> 開始一鍵部署
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const USERNAME = 'hung0221';
+        const REPO_NAME = 'AgentCoding';
+        
+        let allRepos = [];
+        let langChart = null;
+
+        // GitHub 語言顏色對照表
+        const LANG_COLORS = {
+            'JavaScript': '#f1e05a',
+            'TypeScript': '#3178c6',
+            'HTML': '#e34c26',
+            'CSS': '#563d7c',
+            'Python': '#3572A5',
+            'Go': '#00ADD8',
+            'Java': '#b07219',
+            'C++': '#f34b7d',
+            'C#': '#178600',
+            'Ruby': '#701516',
+            'PHP': '#4F5D95',
+            'Shell': '#89e051',
+            'Vue': '#41b883',
+            'Rust': '#dea584',
+            'Swift': '#f05138'
+        };
+
+        // 頁面初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('current-year').textContent = new Date().getFullYear();
+            fetchUserProfile();
+            fetchUserRepos();
+            setupEventListeners();
+            
+            // 嘗試載入 localStorage 中已存的 token
+            const cachedToken = localStorage.getItem('gh_pat_token');
+            if (cachedToken) {
+                document.getElementById('gh-token').value = cachedToken;
+            }
+        });
+
+        // 監聽事件設定
+        function setupEventListeners() {
+            // 搜尋與篩選
+            document.getElementById('search-input').addEventListener('input', filterAndRenderRepos);
+            document.getElementById('lang-filter').addEventListener('change', filterAndRenderRepos);
+            document.getElementById('sort-select').addEventListener('change', filterAndRenderRepos);
+
+            // Modal 控制
+            const modal = document.getElementById('deploy-modal');
+            document.getElementById('btn-deploy-toggle').addEventListener('click', () => {
+                modal.classList.add('active');
+            });
+            document.getElementById('close-modal').addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.classList.remove('active');
+            });
+
+            // 部署按鈕
+            document.getElementById('btn-start-deploy').addEventListener('click', runDeployment);
+        }
+
+        // 取得 GitHub 個人資料
+        async function fetchUserProfile() {
+            try {
+                const response = await fetch(`https://api.github.com/users/${USERNAME}`);
+                if (!response.ok) throw new Error('無法取得個人資訊');
+                const data = await response.json();
+                
+                document.getElementById('user-avatar').src = data.avatar_url;
+                document.getElementById('user-name').textContent = data.name || data.login;
+                document.getElementById('user-login').textContent = `@${data.login}`;
+                document.getElementById('user-bio').textContent = data.bio || '這個使用者很懶，什麼都沒留下。';
+                document.getElementById('user-followers').textContent = data.followers;
+                document.getElementById('user-following').textContent = data.following;
+                document.getElementById('user-repos-count').textContent = data.public_repos;
+                document.getElementById('github-profile-link').href = data.html_url;
+            } catch (error) {
+                console.error(error);
+                document.getElementById('user-name').textContent = USERNAME;
+                document.getElementById('user-login').textContent = `@${USERNAME}`;
+                document.getElementById('user-bio').textContent = '動態讀取個人資料失敗，顯示備用資訊。';
+            }
+        }
+
+        // 取得 GitHub 儲存庫列表
+        async function fetchUserRepos() {
+            const container = document.getElementById('repos-container');
+            try {
+                const response = await fetch(`https://api.github.com/users/${USERNAME}/repos?per_page=100&sort=updated`);
+                if (!response.ok) throw new Error('讀取儲存庫清單失敗');
+                allRepos = await response.json();
+                
+                // 過濾掉為部署產生的 AgentCoding，除非它已經有其他內容 (或是使用者特別需要)
+                // 這裡我們展示所有，但可以過濾掉私人的 (API 回傳預設就是 public)
+                
+                renderDashboard(allRepos);
+                populateLanguageFilter(allRepos);
+                filterAndRenderRepos();
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = `
+                    <div class="state-container">
+                        <i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--error);"></i>
+                        <p>讀取儲存庫資料時發生錯誤：${error.message}</p>
+                        <button class="btn btn-secondary" onclick="fetchUserRepos()">重新整理</button>
+                    </div>
+                `;
+            }
+        }
+
+        // 渲染 Dashboard 資料與圖表
+        function renderDashboard(repos) {
+            let totalStars = 0;
+            let totalForks = 0;
+            const langCounts = {};
+            let latestRepo = null;
+
+            repos.forEach(repo => {
+                totalStars += repo.stargazers_count;
+                totalForks += repo.forks_count;
+                
+                if (repo.language) {
+                    langCounts[repo.language] = (langCounts[repo.language] || 0) + 1;
+                }
+
+                // 最近更新
+                if (!latestRepo || new Date(repo.updated_at) > new Date(latestRepo.updated_at)) {
+                    latestRepo = repo;
+                }
+            });
+
+            document.getElementById('total-stars').textContent = totalStars;
+            document.getElementById('total-forks').textContent = totalForks;
+            document.getElementById('latest-updated-repo').textContent = latestRepo ? latestRepo.name : '-';
+            
+            // 最常用語言
+            let topLang = '-';
+            let maxCount = 0;
+            for (const [lang, count] of Object.entries(langCounts)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topLang = lang;
+                }
+            }
+            document.getElementById('primary-language-stat').textContent = topLang;
+
+            // 繪製語言比例圖表 (Chart.js)
+            const sortedLangs = Object.entries(langCounts)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5); // 最多取前 5 個
+
+            const langLabels = sortedLangs.map(l => l[0]);
+            const langData = sortedLangs.map(l => l[1]);
+            const bgColors = langLabels.map(l => LANG_COLORS[l] || '#8b949e');
+
+            if (langChart) langChart.destroy();
+            
+            const ctx = document.getElementById('languageChart').getContext('2d');
+            langChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: langLabels,
+                    datasets: [{
+                        data: langData,
+                        backgroundColor: bgColors,
+                        borderWidth: 1,
+                        borderColor: '#161b22'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#f0f6fc',
+                                font: {
+                                    size: 11,
+                                    family: 'Inter'
+                                }
+                            }
+                        }
+                    },
+                    cutout: '65%'
+                }
+            });
+        }
+
+        // 動態填充語言過濾器
+        function populateLanguageFilter(repos) {
+            const select = document.getElementById('lang-filter');
+            const langs = new Set();
+            
+            repos.forEach(repo => {
+                if (repo.language) langs.add(repo.language);
+            });
+
+            // 清空除 'all' 以外的選項
+            select.innerHTML = '<option value="all">所有語言</option>';
+            
+            // 排序後加入選項
+            Array.from(langs).sort().forEach(lang => {
+                const opt = document.createElement('option');
+                opt.value = lang;
+                opt.textContent = lang;
+                select.appendChild(opt);
+            });
+        }
+
+        // 過濾與渲染 Repositories
+        function filterAndRenderRepos() {
+            const searchVal = document.getElementById('search-input').value.toLowerCase();
+            const langVal = document.getElementById('lang-filter').value;
+            const sortVal = document.getElementById('sort-select').value;
+            const container = document.getElementById('repos-container');
+
+            let filtered = allRepos.filter(repo => {
+                const matchesSearch = repo.name.toLowerCase().includes(searchVal) || 
+                                     (repo.description && repo.description.toLowerCase().includes(searchVal));
+                const matchesLang = langVal === 'all' || repo.language === langVal;
+                return matchesSearch && matchesLang;
+            });
+
+            // 排序
+            if (sortVal === 'stars') {
+                filtered.sort((a, b) => b.stargazers_count - a.stargazers_count);
+            } else if (sortVal === 'name') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else {
+                // 預設: updated (最近更新)
+                filtered.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+            }
+
+            document.getElementById('visible-repos-count').textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="state-container">
+                        <i class="fa-regular fa-folder-open" style="font-size: 3rem; color: var(--text-muted);"></i>
+                        <p>找不到符合條件的儲存庫。</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            filtered.forEach(repo => {
+                const card = document.createElement('div');
+                card.className = 'repo-card';
+
+                const langColor = LANG_COLORS[repo.language] || '#8b949e';
+                const descText = repo.description || '無描述。這個儲存庫正在默默發揮它的影響力。';
+                const updatedTime = new Date(repo.updated_at).toLocaleDateString('zh-TW', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                card.innerHTML = `
+                    <div class="repo-top">
+                        <h3 class="repo-title">
+                            <i class="fa-regular fa-folder" style="color: var(--secondary); font-size: 1rem;"></i>
+                            <a href="${repo.html_url}" target="_blank">${repo.name}</a>
+                        </h3>
+                        <p class="repo-desc">${descText}</p>
+                    </div>
+                    <div class="repo-meta">
+                        <div class="repo-lang-box">
+                            ${repo.language ? `
+                                <span class="repo-lang-color" style="background-color: ${langColor}"></span>
+                                <span>${repo.language}</span>
+                            ` : '<span>-</span>'}
+                        </div>
+                        <div class="repo-stats-box">
+                            <span class="repo-stat-icon" title="Stars">
+                                <i class="fa-regular fa-star"></i> ${repo.stargazers_count}
+                            </span>
+                            <span class="repo-stat-icon" title="Forks">
+                                <i class="fa-solid fa-code-branch"></i> ${repo.forks_count}
+                            </span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted);">
+                                ${updatedTime}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // ================= 部署助手邏輯 =================
+
+        // 終端機格式化日誌輸出
+        function logToConsole(message, type = 'info') {
+            const consoleBox = document.getElementById('console-box');
+            consoleBox.style.display = 'block';
+            
+            const line = document.createElement('div');
+            if (type === 'success') line.className = 'console-line-success';
+            else if (type === 'error') line.className = 'console-line-error';
+            else if (type === 'info') line.className = 'console-line-info';
+            
+            // 加上時間戳記與內容
+            const time = new Date().toLocaleTimeString();
+            line.textContent = `[${time}] ${message}`;
+            
+            consoleBox.appendChild(line);
+            consoleBox.scrollTop = consoleBox.scrollHeight;
+        }
+
+        // 執行部署
+        async function runDeployment() {
+            const token = document.getElementById('gh-token').value.trim();
+            const consoleBox = document.getElementById('console-box');
+            const deployBtn = document.getElementById('btn-start-deploy');
+            
+            if (!token) {
+                alert('請輸入有效的 GitHub Token！');
+                return;
+            }
+
+            // 儲存 token 至本地 (便於下次使用)
+            localStorage.setItem('gh_pat_token', token);
+
+            // 初始化狀態
+            consoleBox.innerHTML = '';
+            deployBtn.disabled = true;
+            deployBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 部署中...';
+            
+            logToConsole('開始執行自動部署程序...', 'info');
+
+            try {
+                // 1. 驗證 Token & 使用者
+                logToConsole('正在驗證 Token 與使用者權限...', 'info');
+                const userRes = await fetch('https://api.github.com/user', {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+
+                if (!userRes.ok) throw new Error('Token 驗證失敗，請檢查權限或過期情形。');
+                const userData = await userRes.json();
+                
+                if (userData.login.toLowerCase() !== USERNAME.toLowerCase()) {
+                    throw new Error(`Token 對應之帳號為 ${userData.login}，但當前配置的網頁網址使用者為 ${USERNAME}。兩者不相符！`);
+                }
+                logToConsole(`使用者帳號驗證成功！登入為：${userData.login}`, 'success');
+
+                // 2. 檢查或建立儲存庫
+                logToConsole(`正在檢查儲存庫 ${USERNAME}/${REPO_NAME} 是否存在...`, 'info');
+                const repoCheckRes = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO_NAME}`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+
+                let repoExists = false;
+                if (repoCheckRes.ok) {
+                    repoExists = true;
+                    logToConsole(`儲存庫 ${USERNAME}/${REPO_NAME} 已存在。`, 'success');
+                } else if (repoCheckRes.status === 404) {
+                    logToConsole(`儲存庫 ${USERNAME}/${REPO_NAME} 不存在，正在自動建立中...`, 'info');
+                    
+                    const createRepoRes = await fetch('https://api.github.com/user/repos', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `token ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            name: REPO_NAME,
+                            description: '我的 GitHub 個人介紹與儲存庫展示牆',
+                            private: false,
+                            auto_init: true // 初始化 main 分支以方便直接寫入檔案
+                        })
+                    });
+
+                    if (!createRepoRes.ok) {
+                        const errData = await createRepoRes.json();
+                        throw new Error(`建立儲存庫失敗：${errData.message || createRepoRes.statusText}`);
+                    }
+                    logToConsole(`成功建立儲存庫 ${USERNAME}/${REPO_NAME}！`, 'success');
+                    
+                    // 等待 GitHub API 背景初始化 (稍微睡 1.5 秒)
+                    logToConsole('等待儲存庫初始化完畢...', 'info');
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                } else {
+                    throw new Error(`檢查儲存庫時發生未知錯誤，HTTP 狀態碼：${repoCheckRes.status}`);
+                }
+
+                // 3. 獲取當前網頁程式碼並準備上傳
+                logToConsole('正在讀取本地 index.html 內容...', 'info');
+                let htmlContent = '';
+                
+                try {
+                    const res = await fetch(window.location.href);
+                    htmlContent = await res.text();
+                } catch (e) {
+                    logToConsole('因 CORS 限制，無法直接 fetch 本地檔案，切換至 DOM 渲染備用方案...', 'info');
+                    let docHtml = document.documentElement.outerHTML;
+                    // 將輸入框中的 token 清除，避免資安漏洞
+                    docHtml = docHtml.replace(/id="gh-token"\s+value="[^"]*"/g, 'id="gh-token" value=""');
+                    htmlContent = "<!DOCTYPE html>\n<html lang=\"zh-TW\">" + docHtml + "</html>";
+                }
+
+                // 將檔案內容編碼成 Base64 (UTF-8 支援)
+                // 為了完美支援中文，我們使用 btoa 與 encodeURIComponent / unescape
+                const base64Content = btoa(unescape(encodeURIComponent(htmlContent)));
+
+                // 4. 上傳/更新 index.html
+                logToConsole('檢查儲存庫中是否已有 index.html 檔案...', 'info');
+                const fileCheckRes = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO_NAME}/contents/index.html`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+
+                let sha = '';
+                if (fileCheckRes.ok) {
+                    const fileData = await fileCheckRes.json();
+                    sha = fileData.sha;
+                    logToConsole('已偵測到現有的 index.html，將進行覆寫更新...', 'info');
+                } else {
+                    logToConsole('儲存庫中尚未有 index.html，將全新建立檔案...', 'info');
+                }
+
+                logToConsole('正在傳送 Commit 檔案至 GitHub...', 'info');
+                const uploadRes = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO_NAME}/contents/index.html`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Deploy: update index.html via deployment assistant',
+                        content: base64Content,
+                        sha: sha || undefined
+                    })
+                });
+
+                if (!uploadRes.ok) {
+                    const errData = await uploadRes.json();
+                    throw new Error(`上傳檔案失敗：${errData.message || uploadRes.statusText}`);
+                }
+                logToConsole('檔案上傳與 Commit 提交成功！', 'success');
+
+                // 5. 啟用或確認 GitHub Pages 服務
+                logToConsole('正在為此儲存庫啟用 GitHub Pages...', 'info');
+                const pagesRes = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO_NAME}/pages`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        source: {
+                            branch: 'main',
+                            path: '/'
+                        }
+                    })
+                });
+
+                if (pagesRes.ok || pagesRes.status === 201) {
+                    logToConsole('GitHub Pages 服務已成功啟用！', 'success');
+                } else if (pagesRes.status === 409) {
+                    // 409 通常代表 Pages 已經啟用了，此時是正常狀態
+                    logToConsole('GitHub Pages 服務原本即為啟用狀態，已自動覆寫部署！', 'success');
+                } else {
+                    const errData = await pagesRes.json();
+                    logToConsole(`Pages 啟用回應 HTTP ${pagesRes.status}: ${errData.message}，這可能不影響部署。`, 'info');
+                }
+
+                // 6. 完成！
+                logToConsole('==========================================', 'info');
+                logToConsole('恭喜！所有部署程序已完成！', 'success');
+                logToConsole(`您的介紹網址為：https://${USERNAME}.github.io/${REPO_NAME}/`, 'success');
+                logToConsole('注意：GitHub Pages 首次部署或更新可能需要 1~2 分鐘進行伺服器建置，請稍候再整理您的網頁。', 'info');
+
+                // 彈出成功訊息
+                setTimeout(() => {
+                    alert(`部署成功！\n網址為：https://${USERNAME}.github.io/${REPO_NAME}/\n（因 GitHub 伺服器建置需要時間，開啟若為 404 請等候 1-2 分鐘再重新整理）`);
+                }, 500);
+
+            } catch (error) {
+                logToConsole(`錯誤：${error.message}`, 'error');
+                console.error(error);
+                alert(`部署失敗：${error.message}`);
+            } finally {
+                deployBtn.disabled = false;
+                deployBtn.innerHTML = '<i class="fa-solid fa-circle-play"></i> 開始一鍵部署';
+            }
+        }
+    </script>
+</body>
+</html>
