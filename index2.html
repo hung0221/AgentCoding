@@ -1,0 +1,1313 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hung0221 | Professional Bento Portfolio</title>
+    <meta name="description" content="hung0221 的專業淺色 Bento Grid 個人介紹與儲存庫展示網頁。採用現代極簡美學與流暢的微互動。">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        :root {
+            --bg-light: #f8fafc;
+            --bg-bento: #ffffff;
+            --bg-bento-hover: #ffffff;
+            --primary: #4f46e5; /* Indigo 600 */
+            --primary-rgb: 79, 70, 229;
+            --secondary: #0d9488; /* Teal 600 */
+            --secondary-rgb: 13, 148, 136;
+            --accent: #db2777; /* Pink 600 */
+            --text-main: #0f172a; /* Slate 900 */
+            --text-muted: #64748b; /* Slate 500 */
+            --border-color: #e2e8f0; /* Slate 200 */
+            --border-hover: #cbd5e1; /* Slate 300 */
+            --border-active: #4f46e5;
+            --success: #16a34a;
+            --error: #dc2626;
+            --easing: cubic-bezier(0.16, 1, 0.3, 1);
+            --transition-speed: 0.25s;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+            --shadow-hover: 0 20px 25px -5px rgba(79, 70, 229, 0.08), 0 8px 10px -6px rgba(79, 70, 229, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-main);
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(79, 70, 229, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, rgba(13, 148, 136, 0.03) 0%, transparent 40%);
+            background-attachment: fixed;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 頂部柔和極光背景 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -200px;
+            left: 30%;
+            width: 40%;
+            height: 400px;
+            background: radial-gradient(circle, rgba(79, 70, 229, 0.04) 0%, rgba(13, 148, 136, 0.02) 60%, transparent 100%);
+            z-index: -1;
+            filter: blur(80px);
+            pointer-events: none;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .container {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        /* Bento Grid */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .bento-item {
+            background: var(--bg-bento);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: var(--shadow-md);
+            transition: transform var(--transition-speed) var(--easing),
+                        border-color var(--transition-speed) var(--easing),
+                        box-shadow var(--transition-speed) var(--easing),
+                        background-color var(--transition-speed) var(--easing);
+            position: relative;
+        }
+
+        /* Bento Item Hover Glow & Shadow */
+        .bento-item:hover {
+            transform: translateY(-4px);
+            border-color: var(--border-hover);
+            box-shadow: var(--shadow-hover);
+        }
+
+        /* Touch feedback */
+        .bento-item:active {
+            transform: translateY(-2px) scale(0.995);
+        }
+
+        /* Grid Spans */
+        .col-span-1 { grid-column: span 1; }
+        .col-span-2 { grid-column: span 2; }
+        .col-span-3 { grid-column: span 3; }
+
+        @media (max-width: 968px) {
+            .bento-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .col-span-1, .col-span-2, .col-span-3 {
+                grid-column: span 1;
+            }
+        }
+
+        /* Bento Header Profile */
+        .profile-header-bento {
+            display: flex;
+            align-items: center;
+            gap: 35px;
+        }
+
+        .bento-avatar-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .bento-avatar {
+            width: 130px;
+            height: 130px;
+            border-radius: 28px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            object-fit: cover;
+            box-shadow: var(--shadow-lg);
+            transition: transform var(--transition-speed) var(--easing);
+        }
+
+        .profile-header-bento:hover .bento-avatar {
+            transform: scale(1.04) rotate(-1deg);
+        }
+
+        .bento-info {
+            flex-grow: 1;
+        }
+
+        .bento-name-row {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 8px;
+        }
+
+        .bento-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+        }
+
+        .bento-username {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            background: #f1f5f9;
+            padding: 4px 12px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .bento-bio {
+            color: var(--text-muted);
+            font-size: 1.05rem;
+            margin-bottom: 20px;
+            max-width: 700px;
+        }
+
+        .bento-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        /* Buttons & Touch Feedback */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s var(--easing);
+            border: none;
+            outline: none;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-secondary {
+            background: #ffffff;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+            border-color: var(--border-hover);
+        }
+
+        /* Bento Stats Title */
+        .bento-card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1e293b;
+        }
+
+        .bento-card-title i {
+            color: var(--primary);
+        }
+
+        .stats-grid-bento {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .stat-box-bento {
+            background: #f8fafc;
+            border: 1px solid #f1f5f9;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: all var(--transition-speed) var(--easing);
+        }
+
+        .stat-box-bento:hover {
+            background: #f1f5f9;
+            border-color: #e2e8f0;
+            transform: scale(1.02);
+        }
+
+        .stat-val-bento {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+
+        .stat-lbl-bento {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Language Stats Bento */
+        .chart-bento-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 190px;
+            width: 100%;
+        }
+
+        /* Bento Filter Panel */
+        .bento-filter-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            padding: 24px 30px;
+        }
+
+        .bento-section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .bento-section-title span {
+            font-size: 0.85rem;
+            background: rgba(79, 70, 229, 0.08);
+            border: 1px solid rgba(79, 70, 229, 0.2);
+            color: var(--primary);
+            padding: 3px 12px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+
+        .bento-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            flex-grow: 1;
+            max-width: 650px;
+            justify-content: flex-end;
+        }
+
+        @media (max-width: 768px) {
+            .bento-filter-panel {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            .bento-controls {
+                justify-content: flex-start;
+                max-width: 100%;
+                width: 100%;
+            }
+        }
+
+        .bento-search-box {
+            position: relative;
+            flex-grow: 1;
+            min-width: 200px;
+        }
+
+        .bento-search-box i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .bento-input {
+            width: 100%;
+            padding: 12px 16px 12px 46px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            transition: all var(--transition-speed) var(--easing);
+        }
+
+        .bento-input:focus {
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.15);
+        }
+
+        .bento-select {
+            padding: 12px 18px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            outline: none;
+            cursor: pointer;
+            transition: all var(--transition-speed) var(--easing);
+            min-width: 140px;
+        }
+
+        .bento-select:focus {
+            border-color: var(--primary);
+            background: #ffffff;
+        }
+
+        /* Repos Bento Grid */
+        .repos-grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 480px) {
+            .repos-grid-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+        }
+
+        /* Repo Bento Card */
+        .repo-bento-card {
+            height: 240px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            opacity: 0;
+        }
+
+        /* Staggered Animation */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .repo-bento-card.animated {
+            animation: fadeInUp 0.4s var(--easing) forwards;
+            animation-delay: calc(var(--delay) * 40ms);
+        }
+
+        .repo-card-top {
+            margin-bottom: 15px;
+        }
+
+        .repo-card-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #1e293b;
+            word-break: break-all;
+        }
+
+        .repo-card-title a {
+            transition: color var(--transition-speed);
+        }
+
+        .repo-bento-card:hover .repo-card-title a {
+            color: var(--primary);
+        }
+
+        .repo-card-desc {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.5;
+            height: 62px;
+        }
+
+        .repo-card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 16px;
+        }
+
+        .lang-tag {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            color: #475569;
+        }
+
+        .lang-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .repo-stats-box {
+            display: flex;
+            gap: 14px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .repo-stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .repo-bento-card:hover .repo-stat-item i.fa-star {
+            color: #eab308;
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+
+        .repo-bento-card:hover .repo-stat-item i.fa-code-branch {
+            color: var(--primary);
+            transform: scale(1.1);
+            transition: transform 0.2s;
+        }
+
+        /* Spinner & Empty State */
+        .state-bento {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 80px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .double-spinner {
+            width: 44px;
+            height: 44px;
+            border: 3px solid transparent;
+            border-top-color: var(--primary);
+            border-bottom-color: var(--secondary);
+            border-radius: 50%;
+            animation: spinDouble 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+        }
+
+        @keyframes spinDouble {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 40px;
+            border-top: 1px solid var(--border-color);
+            padding: 40px 20px 20px 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        /* Floater & Modal */
+        .deploy-floater {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+        }
+
+        .btn-deploy-floater {
+            background: linear-gradient(135deg, var(--primary) 0%, #312e81 100%);
+            color: #fff;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.35);
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-deploy-floater:hover {
+            transform: scale(1.08) rotate(15deg);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.45);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s var(--easing);
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 28px;
+            width: 90%;
+            max-width: 600px;
+            padding: 40px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+            transform: scale(0.95) translateY(20px);
+            transition: transform 0.3s var(--easing);
+            position: relative;
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1) translateY(0);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: transparent;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: color 0.2s;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+        }
+
+        .modal-close:hover {
+            color: var(--text-main);
+            background: #f1f5f9;
+        }
+
+        .modal-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+
+        .deploy-console {
+            background: #0f172a;
+            border: 1px solid #1e293b;
+            border-radius: 14px;
+            padding: 18px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            height: 180px;
+            overflow-y: auto;
+            margin-bottom: 25px;
+            display: none;
+            border-left: 4px solid var(--primary);
+            text-align: left;
+            white-space: pre-wrap;
+        }
+
+        .console-success { color: #4ade80; }
+        .console-error { color: #f87171; }
+        .console-info { color: #38bdf8; }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+            padding: 14px;
+        }
+
+        /* Reduced Motion */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-delay: 0s !important;
+                animation-duration: 0s !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0s !important;
+                scroll-behavior: auto !important;
+                transform: none !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+        <!-- Bento Grid Block -->
+        <main class="bento-grid">
+            
+            <!-- Bento Box 1: Profile (Col span 2) -->
+            <div class="bento-item col-span-2 profile-header-bento">
+                <div class="bento-avatar-wrapper">
+                    <img src="" alt="Avatar" class="bento-avatar" id="b-avatar">
+                </div>
+                <div class="bento-info">
+                    <div class="bento-name-row">
+                        <h1 class="bento-name" id="b-name">載入中...</h1>
+                        <span class="bento-username" id="b-login">@...</span>
+                    </div>
+                    <p class="bento-bio" id="b-bio">正在透過 GitHub API 載入個人資訊與統計數據...</p>
+                    <div class="bento-links">
+                        <a href="https://github.com/hung0221" target="_blank" class="btn btn-primary" id="github-link">
+                            <i class="fa-brands fa-github"></i> 前往 GitHub 首頁
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bento Box 2: Stats (Col span 1) -->
+            <div class="bento-item col-span-1">
+                <h3 class="bento-card-title"><i class="fa-solid fa-chart-simple"></i> 統計數據</h3>
+                <div class="stats-grid-bento">
+                    <div class="stat-box-bento">
+                        <div class="stat-val-bento" id="b-stars">0</div>
+                        <div class="stat-lbl-bento">獲得星星數</div>
+                    </div>
+                    <div class="stat-box-bento">
+                        <div class="stat-val-bento" id="b-forks">0</div>
+                        <div class="stat-lbl-bento">分支次數</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bento Box 3: Languages Chart (Col span 1) -->
+            <div class="bento-item col-span-1">
+                <h3 class="bento-card-title"><i class="fa-solid fa-chart-pie"></i> 語言分佈</h3>
+                <div class="chart-bento-container">
+                    <canvas id="bentoLanguageChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Bento Box 4: Design Metrics (Col span 2) -->
+            <div class="bento-item col-span-2">
+                <h3 class="bento-card-title"><i class="fa-solid fa-wand-magic-sparkles"></i> 專業度分析指標</h3>
+                <div class="stats-grid-bento">
+                    <div class="stat-box-bento" style="flex-direction: row; justify-content: flex-start; gap: 15px; text-align: left;">
+                        <i class="fa-solid fa-crown" style="font-size: 1.8rem; color: var(--primary);"></i>
+                        <div>
+                            <div class="stat-lbl-bento" style="font-size: 0.75rem;">主要開發語言</div>
+                            <div class="stat-val-bento" id="b-top-lang" style="font-size: 1.3rem; margin: 0;">-</div>
+                        </div>
+                    </div>
+                    <div class="stat-box-bento" style="flex-direction: row; justify-content: flex-start; gap: 15px; text-align: left;">
+                        <i class="fa-solid fa-code-commit" style="font-size: 1.8rem; color: var(--secondary);"></i>
+                        <div>
+                            <div class="stat-lbl-bento" style="font-size: 0.75rem;">最近活躍儲存庫</div>
+                            <div class="stat-val-bento" id="b-latest-repo" style="font-size: 1.1rem; margin: 0; word-break: break-all;">-</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bento Box 5: Controls & Filters (Col span 3) -->
+            <div class="bento-item col-span-3 bento-filter-panel">
+                <h2 class="bento-section-title">
+                    公開儲存庫 <span id="b-visible-count">0</span>
+                </h2>
+                <div class="bento-controls">
+                    <!-- Search Input -->
+                    <div class="bento-search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" class="bento-input" id="b-search" placeholder="搜尋儲存庫名稱或描述...">
+                    </div>
+                    <!-- Language Filter -->
+                    <select class="bento-select" id="b-lang-filter">
+                        <option value="all">所有語言</option>
+                    </select>
+                    <!-- Sorting -->
+                    <select class="bento-select" id="b-sort-select">
+                        <option value="updated">最近更新</option>
+                        <option value="stars">最多星星</option>
+                        <option value="name">名稱 A-Z</option>
+                    </select>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Repositories Bento Cards -->
+        <section class="repos-grid-container" id="b-repos-container">
+            <div class="state-bento" id="b-loading-state">
+                <div class="double-spinner"></div>
+                <p style="font-weight: 500; color: var(--text-muted);">正在載入儲存庫列表...</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer>
+            <p>© <span id="year-b"></span> hung0221. All rights reserved.</p>
+            <p style="font-size: 0.8rem; opacity: 0.5;">Designed with Minimalist Professional Bento Layout & Slate Light Theme.</p>
+        </footer>
+
+    </div>
+
+    <!-- Deployment Floating Button -->
+    <div class="deploy-floater">
+        <button class="btn-deploy-floater" id="btn-deploy-toggle" title="部署 index2.html 至 GitHub Pages">
+            <i class="fa-solid fa-cloud-arrow-up"></i>
+        </button>
+    </div>
+
+    <!-- Deployment Modal Overlay -->
+    <div class="modal-overlay" id="deploy-modal">
+        <div class="modal-box">
+            <button class="modal-close" id="close-modal">&times;</button>
+            <div class="modal-title">
+                <i class="fa-solid fa-cloud-arrow-up"></i> 專業部署助理 3.0
+            </div>
+            <p class="modal-desc">此助理將把這個採用 Light Professional 設計的 <code>index2.html</code> 網頁直接上傳至您 GitHub 的 <strong>AgentCoding</strong> 儲存庫，部署後可直接線上瀏覽。</p>
+            
+            <div class="form-group" style="margin-bottom: 20px; text-align: left;">
+                <label for="token-input" style="display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.9rem;">GitHub Personal Access Token (PAT) <span style="color: var(--accent);">*</span></label>
+                <input type="password" class="bento-input" id="token-input" placeholder="ghp_xxxxxxxxxxxx" style="padding-left: 16px;">
+                <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 6px; display: flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid fa-circle-info"></i>
+                    <span>需要 <code>repo</code> 權限。<a href="https://github.com/settings/tokens/new?scopes=repo" target="_blank" style="color: var(--primary); text-decoration: underline;">點此快速產生 Token</a></span>
+                </div>
+            </div>
+
+            <!-- Console Log -->
+            <div class="deploy-console" id="console-box"></div>
+
+            <button class="btn btn-primary btn-full" id="btn-start-deploy">
+                <i class="fa-solid fa-circle-play"></i> 執行 index2.html 部署
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const USERNAME = 'hung0221';
+        const REPO_NAME = 'AgentCoding';
+        const TARGET_FILE = 'index2.html'; // 淺色重製版儲存為 index2.html
+        
+        let repoList = [];
+        let bentoChart = null;
+
+        // GitHub 語言配色對照
+        const GITHUB_COLORS = {
+            'JavaScript': '#f1e05a',
+            'TypeScript': '#3178c6',
+            'HTML': '#e34c26',
+            'CSS': '#563d7c',
+            'Python': '#3572A5',
+            'Go': '#00ADD8',
+            'Java': '#b07219',
+            'C++': '#f34b7d',
+            'C#': '#178600',
+            'Ruby': '#701516',
+            'PHP': '#4F5D95',
+            'Shell': '#89e051',
+            'Vue': '#41b883',
+            'Rust': '#dea584',
+            'Swift': '#f05138'
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('year-b').textContent = new Date().getFullYear();
+            fetchProfileData();
+            fetchReposData();
+            setupBentoListeners();
+            
+            const savedToken = localStorage.getItem('gh_pat_token');
+            if (savedToken) {
+                document.getElementById('token-input').value = savedToken;
+            }
+        });
+
+        function setupBentoListeners() {
+            document.getElementById('b-search').addEventListener('input', filterAndRenderBento);
+            document.getElementById('b-lang-filter').addEventListener('change', filterAndRenderBento);
+            document.getElementById('b-sort-select').addEventListener('change', filterAndRenderBento);
+
+            // Modal 控制
+            const modal = document.getElementById('deploy-modal');
+            document.getElementById('btn-deploy-toggle').addEventListener('click', () => {
+                modal.classList.add('active');
+            });
+            document.getElementById('close-modal').addEventListener('click', () => {
+                modal.classList.remove('active');
+            });
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.classList.remove('active');
+            });
+
+            document.getElementById('btn-start-deploy').addEventListener('click', runBentoDeployment);
+        }
+
+        async function fetchProfileData() {
+            try {
+                const res = await fetch(`https://api.github.com/users/${USERNAME}`);
+                if (!res.ok) throw new Error('API 讀取錯誤');
+                const data = await res.json();
+                
+                document.getElementById('b-avatar').src = data.avatar_url;
+                document.getElementById('b-name').textContent = data.name || data.login;
+                document.getElementById('b-login').textContent = `@${data.login}`;
+                document.getElementById('b-bio').textContent = data.bio || '這個 GitHub 使用者尚未設定 Bio。';
+                document.getElementById('github-link').href = data.html_url;
+            } catch (err) {
+                console.error(err);
+                document.getElementById('b-name').textContent = USERNAME;
+                document.getElementById('b-login').textContent = `@${USERNAME}`;
+                document.getElementById('b-bio').textContent = '載入使用者資料失敗，已顯示備用設定。';
+            }
+        }
+
+        async function fetchReposData() {
+            const container = document.getElementById('b-repos-container');
+            try {
+                const res = await fetch(`https://api.github.com/users/${USERNAME}/repos?per_page=100&sort=updated`);
+                if (!res.ok) throw new Error('無法載入儲存庫清單');
+                repoList = await res.json();
+                
+                buildDashboardData(repoList);
+                buildLanguageFilter(repoList);
+                filterAndRenderBento();
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `
+                    <div class="state-bento">
+                        <i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; color: var(--error);"></i>
+                        <p>載入儲存庫資料發生錯誤：${err.message}</p>
+                        <button class="btn btn-secondary" onclick="fetchReposData()">重新整理</button>
+                    </div>
+                `;
+            }
+        }
+
+        function buildDashboardData(repos) {
+            let stars = 0;
+            let forks = 0;
+            let latest = null;
+            const langs = {};
+
+            repos.forEach(repo => {
+                stars += repo.stargazers_count;
+                forks += repo.forks_count;
+                
+                if (repo.language) {
+                    langs[repo.language] = (langs[repo.language] || 0) + 1;
+                }
+
+                if (!latest || new Date(repo.updated_at) > new Date(latest.updated_at)) {
+                    latest = repo;
+                }
+            });
+
+            document.getElementById('b-stars').textContent = stars;
+            document.getElementById('b-forks').textContent = forks;
+            document.getElementById('b-latest-repo').textContent = latest ? latest.name : '-';
+
+            let topLang = '-';
+            let maxCount = 0;
+            for (const [lang, count] of Object.entries(langs)) {
+                if (count > maxCount) {
+                    maxCount = count;
+                    topLang = lang;
+                }
+            }
+            document.getElementById('b-top-lang').textContent = topLang;
+
+            // 繪製 Chart.js
+            const sortedLangs = Object.entries(langs)
+                .sort((a, b) => b[1] - a[1])
+                .slice(0, 5);
+
+            const labels = sortedLangs.map(l => l[0]);
+            const dataVals = sortedLangs.map(l => l[1]);
+            const colors = labels.map(l => GITHUB_COLORS[l] || '#64748b');
+
+            if (bentoChart) bentoChart.destroy();
+
+            const ctx = document.getElementById('bentoLanguageChart').getContext('2d');
+            bentoChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        data: dataVals,
+                        backgroundColor: colors,
+                        borderWidth: 1,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                color: '#334155',
+                                font: {
+                                    size: 11,
+                                    family: 'Inter',
+                                    weight: '500'
+                                }
+                            }
+                        }
+                    },
+                    cutout: '72%'
+                }
+            });
+        }
+
+        function buildLanguageFilter(repos) {
+            const select = document.getElementById('b-lang-filter');
+            const langs = new Set();
+            repos.forEach(r => { if (r.language) langs.add(r.language); });
+
+            select.innerHTML = '<option value="all">所有語言</option>';
+            Array.from(langs).sort().forEach(lang => {
+                const opt = document.createElement('option');
+                opt.value = lang;
+                opt.textContent = lang;
+                select.appendChild(opt);
+            });
+        }
+
+        function filterAndRenderBento() {
+            const query = document.getElementById('b-search').value.toLowerCase();
+            const lang = document.getElementById('b-lang-filter').value;
+            const sort = document.getElementById('b-sort-select').value;
+            const container = document.getElementById('b-repos-container');
+
+            let filtered = repoList.filter(repo => {
+                const matchQuery = repo.name.toLowerCase().includes(query) ||
+                                   (repo.description && repo.description.toLowerCase().includes(query));
+                const matchLang = lang === 'all' || repo.language === lang;
+                return matchQuery && matchLang;
+            });
+
+            if (sort === 'stars') {
+                filtered.sort((a, b) => b.stargazers_count - a.stargazers_count);
+            } else if (sort === 'name') {
+                filtered.sort((a, b) => a.name.localeCompare(b.name));
+            } else {
+                filtered.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at));
+            }
+
+            document.getElementById('b-visible-count').textContent = filtered.length;
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="state-bento">
+                        <i class="fa-regular fa-folder-open" style="font-size: 3rem; color: var(--text-muted);"></i>
+                        <p>未找到符合搜尋條件的儲存庫。</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = '';
+            filtered.forEach((repo, idx) => {
+                const card = document.createElement('div');
+                card.className = 'bento-item repo-bento-card';
+                card.style.setProperty('--delay', idx);
+                
+                setTimeout(() => {
+                    card.classList.add('animated');
+                }, 10);
+
+                const langColor = GITHUB_COLORS[repo.language] || '#64748b';
+                const desc = repo.description || '無專案描述。該項目目前正由開發團隊持續維護中。';
+                const updatedStr = new Date(repo.updated_at).toLocaleDateString('zh-TW', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                });
+
+                card.innerHTML = `
+                    <div class="repo-card-top">
+                        <h3 class="repo-card-title">
+                            <i class="fa-regular fa-folder" style="color: var(--primary); font-size: 1.15rem;"></i>
+                            <a href="${repo.html_url}" target="_blank">${repo.name}</a>
+                        </h3>
+                        <p class="repo-card-desc">${desc}</p>
+                    </div>
+                    <div class="repo-card-footer">
+                        <div class="lang-tag">
+                            ${repo.language ? `
+                                <span class="lang-dot" style="background-color: ${langColor};"></span>
+                                <span>${repo.language}</span>
+                            ` : '<span>-</span>'}
+                        </div>
+                        <div class="repo-stats-box">
+                            <span class="repo-stat-item" title="Stars">
+                                <i class="fa-regular fa-star"></i> ${repo.stargazers_count}
+                            </span>
+                            <span class="repo-stat-item" title="Forks">
+                                <i class="fa-solid fa-code-branch"></i> ${repo.forks_count}
+                            </span>
+                            <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 400;">
+                                ${updatedStr}
+                            </span>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // ================= 部署助手 3.0 =================
+
+        function writeConsole(msg, status = 'info') {
+            const box = document.getElementById('console-box');
+            box.style.display = 'block';
+            
+            const line = document.createElement('div');
+            if (status === 'success') line.className = 'console-success';
+            else if (status === 'error') line.className = 'console-error';
+            else if (status === 'info') line.className = 'console-info';
+            
+            line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+            box.appendChild(line);
+            box.scrollTop = box.scrollHeight;
+        }
+
+        async function runBentoDeployment() {
+            const token = document.getElementById('token-input').value.trim();
+            const btn = document.getElementById('btn-start-deploy');
+            const box = document.getElementById('console-box');
+
+            if (!token) {
+                alert('請輸入有效 Token！');
+                return;
+            }
+
+            localStorage.setItem('gh_pat_token', token);
+            box.innerHTML = '';
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 部署傳送中...';
+            
+            writeConsole('啟動 Light Mode 專業版部署程序...', 'info');
+
+            try {
+                // 1. 認證
+                writeConsole('正在驗證使用者身分...', 'info');
+                const userRes = await fetch('https://api.github.com/user', {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+                if (!userRes.ok) throw new Error('Token 驗證失敗。');
+                const userData = await userRes.json();
+                
+                if (userData.login.toLowerCase() !== USERNAME.toLowerCase()) {
+                    throw new Error(`Token 對應帳號為 @${userData.login}，與配置頁面作者不符。`);
+                }
+                writeConsole(`驗證成功，登入為 @${userData.login}`, 'success');
+
+                // 2. 儲存庫確認
+                writeConsole(`確認儲存庫 ${USERNAME}/${REPO_NAME} 是否存在...`, 'info');
+                const repoRes = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO_NAME}`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+
+                if (!repoRes.ok) {
+                    if (repoRes.status === 404) {
+                        writeConsole('儲存庫不存在，開始建立公開儲存庫...', 'info');
+                        const createRes = await fetch('https://api.github.com/user/repos', {
+                            method: 'POST',
+                            headers: {
+                                'Authorization': `token ${token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                name: REPO_NAME,
+                                description: 'My GitHub Profile Bento Gallery (Light Style)',
+                                private: false,
+                                auto_init: true
+                            })
+                        });
+                        if (!createRes.ok) throw new Error('儲存庫建立失敗。');
+                        writeConsole('儲存庫建立成功。', 'success');
+                        await new Promise(r => setTimeout(r, 2000));
+                    } else {
+                        throw new Error(`API 查詢異常，HTTP 狀態碼：${repoRes.status}`);
+                    }
+                } else {
+                    writeConsole('已確認儲存庫存在。', 'success');
+                }
+
+                // 3. 讀取並轉換 index2.html
+                writeConsole(`載入並編譯 ${TARGET_FILE} 本地原始碼...`, 'info');
+                let code = '';
+                try {
+                    const res = await fetch(window.location.href);
+                    code = await res.text();
+                } catch (e) {
+                    writeConsole('偵測到 CORS 限制，啟用 DOM Fallback 編譯機制...', 'info');
+                    let doc = document.documentElement.outerHTML;
+                    doc = doc.replace(/id="token-input"\s+value="[^"]*"/g, 'id="token-input" value=""');
+                    code = "<!DOCTYPE html>\n<html lang=\"zh-TW\">" + doc + "</html>";
+                }
+
+                const base64 = btoa(unescape(encodeURIComponent(code)));
+
+                // 4. 提交檔案 (目標 index2.html)
+                writeConsole(`檢查是否有舊的 ${TARGET_FILE} 存在於儲存庫...`, 'info');
+                const fileRes = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO_NAME}/contents/${TARGET_FILE}`, {
+                    headers: { 'Authorization': `token ${token}` }
+                });
+
+                let sha = '';
+                if (fileRes.ok) {
+                    const fileData = await fileRes.json();
+                    sha = fileData.sha;
+                    writeConsole(`偵測到現有檔案，準備覆寫更新 (SHA: ${sha})...`, 'info');
+                } else {
+                    writeConsole(`執行全新 ${TARGET_FILE} 上傳...`, 'info');
+                }
+
+                writeConsole(`提交 Commit 檔案至 GitHub 伺服器...`, 'info');
+                const uploadRes = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO_NAME}/contents/${TARGET_FILE}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: 'Deploy: update light professional style index2.html via assistant',
+                        content: base64,
+                        sha: sha || undefined
+                    })
+                });
+
+                if (!uploadRes.ok) throw new Error('上傳檔案失敗。');
+                writeConsole(`成功提交 Commit 並存檔為 ${TARGET_FILE}！`, 'success');
+
+                // 5. 確保 Pages 啟用
+                writeConsole('驗證 Pages 服務狀態...', 'info');
+                const pagesRes = await fetch(`https://api.github.com/repos/${USERNAME}/${REPO_NAME}/pages`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${token}`,
+                        'Accept': 'application/vnd.github+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        source: { branch: 'main', path: '/' }
+                    })
+                });
+
+                if (pagesRes.ok || pagesRes.status === 201 || pagesRes.status === 409) {
+                    writeConsole('GitHub Pages 設定完成。', 'success');
+                } else {
+                    writeConsole('警告：Pages 服務回傳非預期狀態，可能不影響檔案的實際載入。', 'info');
+                }
+
+                writeConsole('==========================================', 'info');
+                writeConsole('部署完成！淺色專業版網頁正式推出。', 'success');
+                writeConsole(`您的新版網頁網址為：https://${USERNAME}.github.io/${REPO_NAME}/${TARGET_FILE}`, 'success');
+
+                setTimeout(() => {
+                    alert(`部署成功！\n網址為：https://${USERNAME}.github.io/${REPO_NAME}/${TARGET_FILE}\n（伺服器可能需要 1 分鐘進行建置，若遇到 404 請稍候整理）`);
+                }, 400);
+
+            } catch (err) {
+                writeConsole(`部署錯誤：${err.message}`, 'error');
+                console.error(err);
+                alert(`部署失敗：${err.message}`);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fa-solid fa-circle-play"></i> 執行 index2.html 部署';
+            }
+        }
+    </script>
+</body>
+</html>
